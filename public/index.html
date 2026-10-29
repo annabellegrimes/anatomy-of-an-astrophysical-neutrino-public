@@ -1743,7 +1743,8 @@ html[data-flavour="tau"] [data-fl]:not([data-fl~="tau"]) { display: none !import
     { ctx.save(); ctx.globalCompositeOperation = "lighter"; ctx.lineCap = "round";
       for (const [w, a] of [[rb * 0.05, 0.6]]) { ctx.lineWidth = w; ctx.strokeStyle = rgba(discCol(0.95), a); ctx.beginPath(); ctx.ellipse(cx, cy, rin * 1.05, rin * 1.05 * tl, 0, 0.15, Math.PI - 0.15); ctx.stroke(); }
       ctx.restore(); }
-    label("dusty torus", Math.min(cx + rt * 0.92, R.x + R.w - FS * 5), cy - rt * tl * 2.1, { col: [214, 150, 116], size: FS - 1, align: "center", alpha: fade(s, 0.2, 0.23, 0.28, 0.31) });
+    // on the torus's lower right: its upper right is under the readout, which is taller at Beginner (unit notes)
+    label("dusty torus", Math.min(cx + rt * 0.92, R.x + R.w - FS * 5), cy + rt * tl * 2.1, { col: [214, 150, 116], size: FS - 1, align: "center", alpha: fade(s, 0.2, 0.23, 0.28, 0.31) });
     label("supermassive black hole · ~10 million solar masses", cx, cy - rc * 1.2 - FS * 1.2, { col: C.fg, size: FS - 1, align: "center", alpha: fade(s, 0.2, 0.23, 0.28, 0.31) });
     label(LEVEL() === 1 ? "hot corona · about a billion degrees" : "hot corona · ~$10^9$ K", cx, cy - rc * 1.2 - FS * 1.2, { col: XRAY, size: FS - 1, align: "center", weight: 600, alpha: fade(s, 0.31, 0.34, 0.6, 0.75) });
     label("accretion disc", cx - rd * 0.62, cy + rd * tl + FS * 1.4,   // left, clear of the light's label on the right
