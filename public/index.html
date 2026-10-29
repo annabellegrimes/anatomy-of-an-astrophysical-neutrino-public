@@ -29,7 +29,7 @@
 h2.story-title { font-size: clamp(32px, 3.4vw, 48px); }
 /* what the zoom in passes, largest first, under the readout; placed and lit by placeLadder() (the one in view is lit) */
 .ladder {
-  position: absolute; top: 0; right: 76px; z-index: 1; min-width: 280px; pointer-events: none; opacity: 0; visibility: hidden;
+  position: absolute; top: 0; right: 76px; z-index: 1; min-width: 280px; max-width: 320px; pointer-events: none; opacity: 0; visibility: hidden;
   font-family: var(--f-mono); font-size: 13px; line-height: 1.45; color: var(--muted);
   background: rgba(2, 11, 19, 0.6); border: 1px solid var(--line); border-radius: 4px; padding: 10px 12px;
 }
@@ -38,6 +38,9 @@ h2.story-title { font-size: clamp(32px, 3.4vw, 48px); }
 .ladder li > span + span { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .ladder li.now { color: var(--cher-hi); border-left-color: var(--cher-hi); }
 .ladder-foot { margin: 6px 0 0; font-size: 12px; }
+.ladder-foot span { white-space: nowrap; }   /* the Beginner unit key wraps between units, never inside one */
+/* while the panel is up it covers the stage rail, so the current stage's label hides (hovering the rail still shows it) */
+.rail.under-ladder:not(:hover) button.active span { opacity: 0; }
 @media (prefers-reduced-motion: reduce) { .ladder li { transition: none; } }
 /* the sensor wall's caption, placed by placeWallNote(); dashed edge to match the drawn plane */
 .wall-note {
@@ -565,7 +568,7 @@ html[data-flavour="tau"] [data-fl]:not([data-fl~="tau"]) { display: none !import
           <li data-life="water molecules"><span>water molecules</span><span>0.3 nm</span></li>
         </ul>
         <p class="ladder-foot">hover over one to name it</p>
-        <p class="ladder-foot" data-lvl="1">cm: a hundredth of a metre · mm: a thousandth · µm: a millionth · nm: a billionth</p>
+        <p class="ladder-foot" data-lvl="1"><span>cm: a hundredth of a metre</span> · <span>mm: a thousandth</span> · <span>µm: a millionth</span> · <span>nm: a billionth</span></p>
       </div>
       <p class="wall-note" id="wall-note" aria-hidden="true"><b>Conceptual sensor wall</b> An imaginary surface of light sensors used to illustrate where and when Cherenkov light arrives. P-ONE uses sensors distributed along strings, not a solid wall.</p>
       <div class="progress"><div id="prog"></div></div>
@@ -4702,10 +4705,14 @@ html[data-flavour="tau"] [data-fl]:not([data-fl~="tau"]) { display: none !import
   // the panel of what the zoom in passes (#zoom-ladder): shown from the sleeper shark to the molecule, just under the
   // readout, with the thing in view lit
   const ladder = document.getElementById("zoom-ladder"), LADDER = Array.from(ladder.querySelectorAll("li"));
+  const ladderRail = document.getElementById("rail");
   let LADDER_NOW = null, LADDER_A = -1;
   function placeLadder(a, now) {
     if (MOBILE) a = 0;
-    if (Math.abs(a - LADDER_A) > 0.002) { LADDER_A = a; ladder.style.opacity = a.toFixed(3); ladder.style.visibility = a > 0.002 ? "visible" : "hidden"; }
+    if (Math.abs(a - LADDER_A) > 0.002) {
+      LADDER_A = a; ladder.style.opacity = a.toFixed(3); ladder.style.visibility = a > 0.002 ? "visible" : "hidden";
+      ladderRail.classList.toggle("under-ladder", a > 0.002);
+    }
     if (a > 0.002) ladder.style.top = Math.round(hud.offsetTop + hud.offsetHeight + 10) + "px";
     if (a <= 0.002) now = "";
     if (now !== LADDER_NOW) { LADDER_NOW = now; LADDER.forEach(li => li.classList.toggle("now", li.dataset.life === now)); }
