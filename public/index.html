@@ -2019,10 +2019,41 @@ html[data-flavour="tau"] [data-fl]:not([data-fl~="tau"]) { display: none !import
   function webLayout(f) {
     const a = aOf(TSRC + LOOKBACK * f);
     const Rh = MOBILE ? R.h - FS * 7.4 : R.h;   // on phones the web keeps above the timeline and its date counter
-    const base = Math.min(R.w / 2.6, Rh / 1.9);   // layout scale today (a = 1)
-    const cx = R.x + R.w / 2, cy = R.y + Rh * (MOBILE ? 0.5 : 0.44), sc = base * a;
-    const ca = Math.cos(ANG) * 0.95 * sc, sa = Math.sin(ANG) * 0.95 * sc;
+    let base = Math.min(R.w / 2.6, Rh / 1.9);   // layout scale today (a = 1)
+    const cx = R.x + R.w / 2;
+    let cy = R.y + Rh * (MOBILE ? 0.5 : 0.44);
+    // The path climbs to the Milky Way at the top right, where the in-flight readout sits: if they would meet, the web
+    // moves down (and, on a short screen, shrinks) so the path's end stays below the readout and the host galaxy's
+    // end above the timeline's date counter. Laid out for a = 1, the widest the galaxies get.
+    if (!MOBILE) {
+      const hb = flightHudBox(), dy = -Math.sin(ANG) * 0.95;
+      if (cx + Math.cos(ANG) * 0.95 * base + FS * 3 > hb.left) {
+        const top = hb.bottom + FS * 2.5, bot = R.y + R.h - FS * 8.5;
+        base = Math.min(base, (bot - top) / (2 * dy));
+        cy = Math.max(cy, top + dy * base);
+      }
+    }
+    const sc = base * a, ca = Math.cos(ANG) * 0.95 * sc, sa = Math.sin(ANG) * 0.95 * sc;
     return { a, cx, cy, sc, base, Rh, src: [cx - ca, cy - sa], mw: [cx + ca, cy + sa] };
+  }
+  // Where the in-flight readout's box ends, in canvas pixels: measured from a hidden copy holding a typical in-flight
+  // readout, once per screen size and level, so the layout stays still while the numbers in the readout change
+  let flightHudKey = "", flightHud = null;
+  function flightHudBox() {
+    const key = W + "x" + H + ":" + LEVEL();
+    if (key !== flightHudKey) {
+      flightHudKey = key;
+      const probe = hud.cloneNode(false);
+      probe.removeAttribute("id"); probe.hidden = false; probe.style.cssText = "visibility: hidden; opacity: 0"; probe.setAttribute("aria-hidden", "true");
+      probe.innerHTML = TEX.html(hudHtml("In flight", [["date", "1.56 billion years ago"], ["time travelled", "6.34 billion yr"],
+        ["share of the trip", "80% of the time · 85% of the way"], ["universe's age", "12.2 billion yr"], ["host galaxy to us", "9.8 billion ly"],
+        ["neutrino energy", "112 TeV"], ["behind light", "≤ 1.5 ps"]]));
+      hud.parentNode.appendChild(probe);
+      const b = probe.getBoundingClientRect(), c = cv.getBoundingClientRect();
+      flightHud = { left: b.left - c.left, bottom: b.bottom - c.top };
+      probe.remove();
+    }
+    return flightHud;
   }
   // fraction of the comoving distance covered by time fraction f: the neutrino crosses more comoving space early on,
   // when the universe was smaller (chi = integral of c dt / a)
@@ -3188,9 +3219,12 @@ html[data-flavour="tau"] [data-fl]:not([data-fl~="tau"]) { display: none !import
 
   // ---------- HUD ----------
   let hudKey = "";
+  function hudHtml(title, rows) {
+    const html = `<div class="hud-title">${title}</div>` + rows.map(([k, v]) => `<div class="hud-row"><span>${k}</span><b>${v}</b></div>`).join("");
+    return html + hudUnits(html);
+  }
   function setHud(title, rows) {
-    let html = `<div class="hud-title">${title}</div>` + rows.map(([k, v]) => `<div class="hud-row"><span>${k}</span><b>${v}</b></div>`).join("");
-    html += hudUnits(html);
+    const html = hudHtml(title, rows);
     if (html !== hudKey) { hud.innerHTML = TEX.html(html); hudKey = html; }
   }
   function updateHud(s) {
