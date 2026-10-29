@@ -34,31 +34,39 @@
 })();
 // At Beginner, the readouts and the scale bar explain each unit they show. unitNotes(text) gives the plain-English
 // meaning of every unit found in a piece of readout text (HTML and TeX allowed), once each, in this order.
+// unitNotes(text, true) gives the one-line forms, for the readouts, which have less room than the scale bar.
 window.unitNotes = (function () {
+  // the one-line eV note names only the prefixes the text uses
+  const PRE = { k: "a thousand", M: "a million", G: "a billion", T: "a trillion", P: "a thousand trillion" };
+  const evShort = t => ["eV: a unit of particle energy"].concat(Object.keys(PRE).filter(k => new RegExp("\\b" + k + "eV\\b").test(t))
+    .map(k => `${k}eV = ${PRE[k]} eV`)).join("; ");
   const G = [
-    [/\blight-years?\b|\bly\b/, "ly (light-year): how far light travels in a year, about 9.5 trillion km"],
-    [/\blight-days?\b/, "light-day: how far light travels in a day, about 26 billion km"],
-    [/\blight-hours?\b/, "light-hour: how far light travels in an hour, about 1 billion km"],
-    [/\blight-minutes?\b/, "light-minute: how far light travels in a minute, about 18 million km"],
-    [/\bAU\b/, "AU: the distance from the Earth to the Sun, about 150 million km"],
-    [/\bkm\b|kilometres?/, "km (kilometre): 1,000 metres"],
-    [/\d\s?m\b|\bmetres?\b/, "m (metre): about one long step"],
-    [/\bcm\b/, "cm (centimetre): a hundredth of a metre"],
-    [/\bmm\b/, "mm (millimetre): a thousandth of a metre"],
-    [/µm\b/, "µm (micrometre): a millionth of a metre"],
-    [/\bnm\b|nanometres?/, "nm (nanometre): a billionth of a metre"],
-    [/\bpm\b|picometres?/, "pm (picometre): a trillionth of a metre; an atom is about 100 pm across"],
-    [/\bfm\b|femtometres?/, "fm (femtometre): a millionth of a billionth of a metre, about the size of a proton"],
-    [/\b[kMGTP]?eV\b/, "eV (electronvolt): a tiny amount of energy, used for particles. MeV = a million eV, GeV = a billion, TeV = a trillion, PeV = a thousand trillion"],
-    [/(\d|\\\))\s?K\b|\bkelvin\b/,"K (kelvin): degrees, counted up from absolute zero (−273 °C)"],
+    [/\blight-years?\b|\bly\b/, "ly (light-year): how far light travels in a year, about 9.5 trillion km", "ly: light-year, about 9.5 trillion km"],
+    [/\blight-days?\b/, "light-day: how far light travels in a day, about 26 billion km", "light-day: about 26 billion km"],
+    [/\blight-hours?\b/, "light-hour: how far light travels in an hour, about 1 billion km", "light-hour: about 1 billion km"],
+    [/\blight-minutes?\b/, "light-minute: how far light travels in a minute, about 18 million km", "light-minute: about 18 million km"],
+    [/\bAU\b/, "AU: the distance from the Earth to the Sun, about 150 million km", "AU: Earth to Sun, about 150 million km"],
+    [/\bkm\b|kilometres?/, "km (kilometre): 1,000 metres", "km: kilometre, 1,000 metres"],
+    [/\d\s?m\b|\bmetres?\b/, "m (metre): about one long step", "m: metre, about one long step"],
+    [/\bcm\b/, "cm (centimetre): a hundredth of a metre", "cm: a hundredth of a metre"],
+    [/\bmm\b/, "mm (millimetre): a thousandth of a metre", "mm: a thousandth of a metre"],
+    [/µm\b/, "µm (micrometre): a millionth of a metre", "µm: a millionth of a metre"],
+    [/\bnm\b|nanometres?/, "nm (nanometre): a billionth of a metre", "nm: a billionth of a metre"],
+    [/\bpm\b|picometres?/, "pm (picometre): a trillionth of a metre; an atom is about 100 pm across", "pm: a trillionth of a metre"],
+    [/\bfm\b|femtometres?/, "fm (femtometre): a millionth of a billionth of a metre, about the size of a proton", "fm: about the size of a proton"],
+    [/\b[kMGTP]?eV\b/, "eV (electronvolt): a tiny amount of energy, used for particles. MeV = a million eV, GeV = a billion, TeV = a trillion, PeV = a thousand trillion", evShort],
+    [/(\d|\\\))\s?K\b|\bkelvin\b/,"K (kelvin): degrees, counted up from absolute zero (−273 °C)", "K: kelvin, degrees above absolute zero"],
     [/\bms\b/, "ms: a thousandth of a second"],
     [/µs\b/, "µs: a millionth of a second"],
     [/\bns\b/, "ns: a billionth of a second"],
     [/\bps\b/, "ps: a trillionth of a second"],
     [/\byr\b|\bGyr\b/, "yr: years"],
-    [/10\^|10<sup>|×\s?10\b/, "powers of ten: 10 with a small 9 beside it means a 1 with 9 zeros after it, a billion"]
+    [/10\^|10<sup>|×\s?10\b/, "powers of ten: 10 with a small 9 beside it means a 1 with 9 zeros after it, a billion", "10⁹: a 1 with 9 zeros, a billion"]
   ];
-  return text => { const t = String(text).replace(/<[^>]+>/g, " "); return G.filter(([re]) => re.test(t)).map(([, s]) => s); };
+  return (text, short) => {
+    const t = String(text).replace(/<[^>]+>/g, " ");
+    return G.filter(([re]) => re.test(t)).map(([, long, sh]) => !short || !sh ? long : typeof sh === "function" ? sh(t) : sh);
+  };
 })();
 // What the Greek letters (and the Sun and Earth signs) in a piece of maths mean, read from its TeX: one line each,
 // for the hover tips on the page's maths and on the drawings' labels. Context decides between meanings: π with a
@@ -99,6 +107,6 @@ window.greekNotes = function (tex) {
 // the readouts' footnote of units (Beginner only)
 window.hudUnits = html => {
   if (document.documentElement.dataset.level !== "1") return "";
-  const n = unitNotes(html);
+  const n = unitNotes(html, true);
   return n.length ? `<div class="hud-units">${n.map(t => `<div>${t}</div>`).join("")}</div>` : "";
 };
