@@ -2,7 +2,9 @@
 
 A scroll-driven, single-page visualisation that follows one high-energy neutrino from its birth beside the supermassive black hole of an active galaxy, across 7.9 billion years and through the Earth, into the ocean at the proposed P-ONE neutrino telescope. It then zooms into the interaction itself (muon, electron or tau flavour) and ends with an interactive 3D model of the P-ONE array.
 
-It runs entirely on your own computer at http://localhost:3000. Everything it needs, including the three.js 3D library, the world map and the fonts, is in this folder, so it works offline. The only links that go online are the source citations in the notes at the bottom of the page.
+**View it online:** https://annabellegrimes.github.io/anatomy-of-an-astrophysical-neutrino-public/ (works on any device with a modern browser, including phones, tablets and Chromebooks).
+
+You can also run it on your own computer, at http://localhost:3000. Everything it needs, including the three.js 3D library, the world map and the fonts, is in this folder, so it works offline. The only links that go online are the source citations in the notes at the bottom of the page.
 
 ## Requirements
 
@@ -91,6 +93,7 @@ anatomy-of-an-astrophysical-neutrino/
 ├─ start.command            macOS: double-click launcher
 ├─ start.sh                 macOS and Linux: terminal launcher
 ├─ THIRD-PARTY-NOTICES.md   licences for the files in public/vendor
+├─ .github/workflows/pages.yml   publishes public/ to GitHub Pages on every push
 └─ README.md
 ```
 
@@ -124,3 +127,5 @@ git add -A
 git commit -m "Describe the change"
 git push
 ```
+
+Each push to `main` also republishes the online version; it updates a minute or two later. Progress shows under the repository's **Actions** tab.
