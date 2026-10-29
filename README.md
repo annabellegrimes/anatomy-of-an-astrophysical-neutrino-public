@@ -6,49 +6,67 @@ It runs entirely on your own computer at http://localhost:3000. Everything it ne
 
 ## Requirements
 
-- Windows 10 or 11. The server uses Windows PowerShell, which is built in, so there is **nothing to install**.
-- A modern browser (Edge, Chrome or Firefox) with WebGL turned on, which is the default.
+- **Windows 10 or 11**: nothing to install. The server uses Windows PowerShell, which is built in.
+- **macOS or Linux**: Python 3.7 or newer. Most Linux systems already have it. On a Mac, if it's missing, the launcher tells you how to get it (`xcode-select --install`).
+- A modern browser (Edge, Chrome, Firefox or Safari) with WebGL turned on, which is the default.
 
 ## Start it
+
+### Windows
 
 1. Open this folder in File Explorer.
 2. Double-click **`start.bat`**.
 
 A console window opens and your browser goes to http://localhost:3000. Leave the console window open while you use the page. To stop the server, close that window or press `Ctrl+C` in it.
 
-That's all you need to do on later launches too. For a one-click start, right-click `start.bat`, choose **Show more options → Send to → Desktop (create shortcut)**, and use the shortcut on your desktop.
+For a one-click start, right-click `start.bat`, choose **Show more options → Send to → Desktop (create shortcut)**, and use the shortcut on your desktop.
 
-### Start it from a terminal instead
+### macOS
 
-In PowerShell or Command Prompt, from this folder:
+1. Open this folder in Finder.
+2. Double-click **`start.command`**.
 
-```bat
-start.bat
+A Terminal window opens and your browser goes to http://localhost:3000. Leave the Terminal window open while you use the page. To stop the server, press `Ctrl+C` in it or close it.
+
+The first time, macOS may say the file "cannot be opened" because it was downloaded from the internet. Right-click (or Control-click) `start.command`, choose **Open**, then **Open** again. You only need to do this once.
+
+### Linux
+
+In a terminal, from this folder:
+
+```sh
+./start.sh
 ```
 
-Or call the server script directly:
+Your browser goes to http://localhost:3000. To stop the server, press `Ctrl+C`. If you downloaded the folder as a ZIP and get "Permission denied", run `chmod +x start.sh` once, or start it with `sh start.sh`.
+
+### More options
+
+On Windows, from PowerShell or Command Prompt in this folder:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\server.ps1
-```
-
-Options:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\server.ps1 -Port 3001     # use another port
-powershell -ExecutionPolicy Bypass -File .\server.ps1 -NoBrowser     # don't open the browser
+start.bat 3001                                                        # use another port
+powershell -ExecutionPolicy Bypass -File .\server.ps1 -NoBrowser      # don't open the browser
 ```
 
 `-ExecutionPolicy Bypass` applies only to that one command and doesn't change your system settings.
+
+On macOS or Linux:
+
+```sh
+./start.sh 3001                       # use another port
+python3 server.py --no-browser        # don't open the browser
+```
 
 ## Troubleshooting
 
 | Problem | Fix |
 | --- | --- |
-| "Could not start the server on port 3000" | Another program is using port 3000. Close it, or run `start.bat 3001` and open http://localhost:3001. |
+| "Could not start the server on port 3000" | Another program is using port 3000. Close it, or start on another port (`start.bat 3001` or `./start.sh 3001`) and open http://localhost:3001. |
 | Windows SmartScreen warns about `start.bat` | Choose **More info → Run anyway**. It only starts `server.ps1` from this folder. |
+| macOS says `start.command` "cannot be opened" | Right-click it, choose **Open**, then **Open** again. |
 | The 3D globe or P-ONE model shows a message instead | Your browser has WebGL off or unavailable. Check that hardware acceleration is on in the browser's settings. |
-| The page didn't change after you edited it | Refresh the page with `Ctrl+F5`. |
+| The page didn't change after you edited it | Force a refresh: `Ctrl+F5` on Windows and Linux, `Cmd+Shift+R` on a Mac. |
 
 ## Project layout
 
@@ -67,8 +85,11 @@ anatomy-of-an-astrophysical-neutrino/
 │     ├─ echarts/           Apache ECharts 4.9 world map (globe coastlines)
 │     ├─ fonts/             IBM Plex Mono, IBM Plex Sans, Newsreader
 │     └─ katex/             KaTeX 0.16 (LaTeX maths in the text, and its fonts for canvas labels)
-├─ server.ps1               the local web server (PowerShell, port 3000)
-├─ start.bat                double-click launcher
+├─ server.ps1               the local web server on Windows (PowerShell, port 3000)
+├─ start.bat                Windows: double-click launcher
+├─ server.py                the local web server on macOS and Linux (Python 3, port 3000)
+├─ start.command            macOS: double-click launcher
+├─ start.sh                 macOS and Linux: terminal launcher
 ├─ THIRD-PARTY-NOTICES.md   licences for the files in public/vendor
 └─ README.md
 ```
