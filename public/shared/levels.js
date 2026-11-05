@@ -13,7 +13,7 @@
   };
   const desc = document.getElementById("lv-desc");
   function set(v, save) {
-    v = Math.min(3, Math.max(1, Math.round(+v) || 2));
+    v = Math.min(3, Math.max(1, Math.round(+v) || 1));
     document.documentElement.dataset.level = v;
     input.value = v; input.setAttribute("aria-valuetext", NAMES[v]);
     input.style.setProperty("--fill", (v - 1) * 50 + "%");
@@ -24,8 +24,8 @@
     document.querySelectorAll(".card").forEach(c => { c.scrollTop = 0; });
     document.dispatchEvent(new CustomEvent("levelchange", { detail: v }));
   }
-  let start = 2;
-  try { start = localStorage.getItem("nu-level") || 2; } catch (e) {}
+  let start = 1;   // new readers start at Beginner
+  try { start = localStorage.getItem("nu-level") || 1; } catch (e) {}
   const q = new URLSearchParams(location.search).get("level");
   set(q || start, false);
   input.addEventListener("input", () => set(input.value, true));
